@@ -85,24 +85,44 @@ function displayQuestions() {
 
     questionsContainer.innerHTML = `<h3>Questions for ${category.label}</h3>`; // Header for questions
 
-    // Add each question as a clickable div
     category.remainingQuestions.forEach((question, index) => {
+        const questionContainer = document.createElement("div");
+        questionContainer.className = "question-container";
+    
+        // Placeholder text initially displayed
+        const placeholderEl = document.createElement("div");
+        placeholderEl.className = "placeholder";
+        placeholderEl.textContent = `Q${index + 1}: Reveal Question`;
+        
+        // Button to reveal the question
+        const revealButton = document.createElement("button");
+        revealButton.textContent = "Reveal";
+        revealButton.className = "reveal-button";
+        
+        // Question element, initially hidden
         const questionEl = document.createElement("div");
         questionEl.className = "question";
-        questionEl.textContent = `Q${index + 1}: ${question}`;
-        questionEl.addEventListener("click", () => {
-            questionEl.style.display = "none"; // Hide question on click
-
-            // Remove the question from remaining questions
-            category.remainingQuestions = category.remainingQuestions.filter(q => q !== question);
-
-            // Check if all questions are hidden, then show the wheel again
-            if (category.remainingQuestions.length === 0 || Array.from(questionsContainer.querySelectorAll(".question")).every(el => el.style.display === "none")) {
-                wheelContainer.style.display = "block"; // Show wheel
-                questionsContainer.style.display = "none"; // Hide questions
-            }
+        questionEl.textContent = question;
+        questionEl.style.display = "none"; // Initially hidden
+    
+        // Append elements to the question container
+        questionContainer.appendChild(placeholderEl);
+        questionContainer.appendChild(revealButton);
+        questionContainer.appendChild(questionEl);
+        questionsContainer.appendChild(questionContainer);
+    
+        // Event listener for the reveal button to show the question
+        revealButton.addEventListener("click", () => {
+            placeholderEl.style.display = "none"; // Hide placeholder
+            revealButton.style.display = "none"; // Hide button
+            questionEl.style.display = "block"; // Show question
         });
-        questionsContainer.appendChild(questionEl);
+    
+        // Event listener for the question to return to the wheel
+        questionEl.addEventListener("click", () => {
+            wheelContainer.style.display = "block"; // Show wheel
+            questionsContainer.style.display = "none"; // Hide questions
+        });
     });
 
     // Hide the wheel and show the questions
