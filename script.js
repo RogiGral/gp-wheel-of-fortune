@@ -48,7 +48,7 @@ function drawCategory(category, i) {
 function rotate() {
     const category = categories[getIndex()];
     ctx.canvas.style.transform = `rotate(${ang - Math.PI / 2}rad)`;
-    spinEl.textContent = !angVel ? 'SPIN' : category.label;
+    spinEl.textContent = !angVel ? 'Zakręć' : category.label;
     spinEl.style.background = category.color;
 }
 
@@ -90,7 +90,7 @@ async function loadQuestions() {
 function displayQuestions() {
     const category = categories[getIndex()];
 
-    questionsContainer.innerHTML = `<h3>Questions for ${category.label}</h3>`; // Header for questions
+    questionsContainer.innerHTML = `<h3>Pytania z kategorii: ${category.label}</h3>`; // Header for questions
 
     // Check if there are any remaining questions
     if (category.remainingQuestions.length === 0) {
@@ -112,11 +112,11 @@ function displayQuestions() {
             // Placeholder text initially displayed
             const placeholderEl = document.createElement("div");
             placeholderEl.className = "placeholder";
-            placeholderEl.textContent = `Q${index + 1}: Reveal Question`;
+            placeholderEl.textContent = `Q${index + 1}: Pokaż pytanie`;
             
             // Button to reveal the question
             const revealButton = document.createElement("button");
-            revealButton.textContent = "Reveal";
+            revealButton.textContent = "-----?-----";
             revealButton.className = "reveal-button";
             
             // Question element, initially hidden
@@ -165,7 +165,7 @@ function displayQuestions() {
                 // If no questions remain after removing, show the "Back to Wheel" button
                 if (category.remainingQuestions.length === 0) {
                     const backButton = document.createElement("button");
-                    backButton.textContent = "Back to Wheel";
+                    backButton.textContent = "Powrót do koła fortuny";
                     backButton.className = "back-button";
                     backButton.addEventListener("click", () => {
                         wheelContainer.style.display = "block"; // Show the wheel
