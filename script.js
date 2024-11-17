@@ -118,15 +118,32 @@ function displayQuestions() {
             // Hide all placeholders, buttons, and questions except the current one
             Array.from(questionsContainer.children).forEach((child) => {
                 const isCurrent = child === questionContainer;
-                child.querySelector(".placeholder").style.display = isCurrent ? "none" : "none"; // Hide all placeholders
-                child.querySelector(".reveal-button").style.display = isCurrent ? "none" : "none"; // Hide all buttons
-                child.querySelector(".question").style.display = isCurrent ? "block" : "none"; // Show only the current question
+                const placeholder = child.querySelector(".placeholder");
+                const button = child.querySelector(".reveal-button");
+                const question = child.querySelector(".question");
+        
+                if (placeholder) {
+                    placeholder.classList.toggle("disabled", !isCurrent);
+                }
+                
+                if (button) {
+                    button.disabled = !isCurrent; // Disable the button if it's not the current one
+                    button.classList.toggle("disabled", !isCurrent); // Add a disabled class for styling
+                }
+        
+                if (question) {
+                    question.style.display = isCurrent ? "block" : "none"; // Only show the selected question
+                }
             });
         });
 
-        // Event listener for the question to return to the wheel and remove the question from view
+        // Event listener for the question to return to the wheel and remove the question from the category's remaining questions
         questionEl.addEventListener("click", () => {
-            questionContainer.style.display = "none"; // Hide the question container after clicking the question
+            // Remove the clicked question from the category's remaining questions
+            const category = categories[getIndex()];
+            category.remainingQuestions = category.remainingQuestions.filter(q => q !== question);
+
+            questionContainer.remove(); // Permanently remove the question container from the DOM
             wheelContainer.style.display = "block"; // Show wheel
             questionsContainer.style.display = "none"; // Hide questions container
         });

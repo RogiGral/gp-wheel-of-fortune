@@ -139,3 +139,18 @@ body, html {
   display: flex;
   justify-content: center;
 }
+
+
+/* Disabled styling for placeholders and buttons */
+.disabled {
+  opacity: 0.5;
+  pointer-events: none; /* Prevent clicking */
+  color: #999;
+}
+
+/* Optional: Styling for disabled button */
+.reveal-button.disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
