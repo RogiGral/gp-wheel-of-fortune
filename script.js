@@ -11,7 +11,7 @@ const spinEl = document.querySelector('#spin');
 const canvas = document.getElementById('wheel');
 const ctx = canvas.getContext('2d');
 let dia = ctx.canvas.width;
-const rad = dia / 2;
+let rad = dia / 2;
 const TAU = 2 * Math.PI;
 const arc = TAU / categories.length;
 
