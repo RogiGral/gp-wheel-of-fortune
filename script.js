@@ -1,4 +1,4 @@
-const categories = [];
+let categories = [];
 
 // Utility functions and constants
 const rand = (m, M) => Math.random() * (M - m) + m;
