@@ -48,6 +48,12 @@ function drawCategory(category, i) {
     ctx.restore();
 }
 
+// Draw each category on the wheel
+function drawWheel() {
+    categories.forEach((category, i) => drawCategory(category, i));
+    rotate(); // Adjust initial rotation
+}
+
 // Rotate canvas and update the displayed category
 function rotate() {
     const category = categories[getIndex()];
