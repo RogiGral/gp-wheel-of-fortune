@@ -1,14 +1,15 @@
 let categories = [];
 
 // Utility functions and constants
+let tot = 0; 
+let arc = 0;
 const rand = (m, M) => Math.random() * (M - m) + m;
-const tot = categories.length; 
 const spinEl = document.querySelector('#spin');
 const ctx = document.querySelector('#wheel').getContext('2d');
 const dia = ctx.canvas.width;
 const rad = dia / 2;
 const TAU = 2 * Math.PI;
-const arc = TAU / categories.length;
+
 
 // Variables for spinning mechanics
 let angVel = 0; // Angular velocity
@@ -85,6 +86,9 @@ async function init() {
             ...category,
             remainingQuestions: [...category.questions]
         }));
+
+        tot = categories.length;
+        arc = TAU / categories.length;
         
         startApp()
     } catch (error) {
