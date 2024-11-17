@@ -104,7 +104,7 @@ function displayQuestions() {
     if (category.remainingQuestions.length === 0) {
         // If no questions are left, show a "Back to Wheel" button
         const backButton = document.createElement("button");
-        backButton.textContent = "Back to Wheel";
+        backButton.textContent = "Wróć do koła";
         backButton.className = "back-button";
         backButton.addEventListener("click", () => {
             wheelContainer.style.display = "block"; 
