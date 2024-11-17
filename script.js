@@ -1,116 +1,120 @@
-// Categories and questions
-const categories = {
-    "Science": ["What is gravity?", "Explain photosynthesis.", "What is an atom?"],
-    "Math": ["What is 2+2?", "Explain Pythagorean theorem.", "What is calculus?"],
-    "History": ["Who was Napoleon?", "What was the Cold War?", "Describe the Roman Empire."]
-  };
+// Define categories with initial questions and a property to track remaining questions
+const categories = [
+    { color: '#f82', label: 'Science', questions: ["What is gravity?", "Explain photosynthesis."], remainingQuestions: [] },
+    { color: '#0bf', label: 'Math', questions: ["What is 2+2?", "Define algebra."], remainingQuestions: [] },
+    { color: '#fb0', label: 'History', questions: ["Who was Napoleon?", "Explain the Cold War."], remainingQuestions: [] },
+    { color: '#0fb', label: 'Geography', questions: ["What is the capital of France?", "Describe the Sahara desert."], remainingQuestions: [] },
+    { color: '#b0f', label: 'Literature', questions: ["Who wrote '1984'?", "Define poetry."], remainingQuestions: [] },
+    { color: '#f0b', label: 'Physics', questions: ["Define force.", "What is acceleration?"], remainingQuestions: [] },
+    { color: '#bf0', label: 'Biology', questions: ["What is a cell?", "Describe DNA."], remainingQuestions: [] }
+  ];
   
-  // DOM Elements
-  const wheelView = document.getElementById("wheel-view");
-  const questionView = document.getElementById("question-view");
-  const categoryTitle = document.getElementById("category-title");
+  // Utility functions and constants
+  const rand = (m, M) => Math.random() * (M - m) + m;
+  const tot = categories.length; // Total categories
+  const spinEl = document.querySelector('#spin');
+  const ctx = document.querySelector('#wheel').getContext('2d');
+  const dia = ctx.canvas.width;
+  const rad = dia / 2;
+  const TAU = 2 * Math.PI; // Full circle in radians
+  const arc = TAU / categories.length; // Angle per category
+  
+  // Variables for spinning mechanics
+  let angVel = 0; // Angular velocity
+  let ang = 0; // Current angle in radians
+  const friction = 0.991; // Deceleration
+  
+  // DOM element for questions
   const questionsContainer = document.getElementById("questions-container");
-  const spinButton = document.getElementById("spin-button");
-  const backToWheelButton = document.getElementById("back-to-wheel");
-  const canvas = document.getElementById("wheel-canvas");
-  const ctx = canvas.getContext("2d");
   
-  // Wheel settings
-  const categoryNames = Object.keys(categories);
-  const numCategories = categoryNames.length;
-  const arcSize = (2 * Math.PI) / numCategories;
-  let angle = 0;
-  let spinning = false;
-  let spinVelocity = 0;
+  // Get the current category index based on angle
+  const getIndex = () => Math.floor(tot - (ang / TAU) * tot) % tot;
   
-  // Draw the wheel with categories
-  function drawWheel() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    categoryNames.forEach((category, i) => {
-      const startAngle = i * arcSize;
-      const endAngle = startAngle + arcSize;
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2, canvas.height / 2);
-      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, startAngle, endAngle);
-      ctx.fillStyle = i % 2 === 0 ? "#ffcc66" : "#66b2ff"; // Alternate colors
-      ctx.fill();
-      ctx.stroke();
+  // Draw each category on the wheel
+  function drawCategory(category, i) {
+    const angStart = arc * i;
+    ctx.beginPath();
+    ctx.fillStyle = category.color;
+    ctx.moveTo(rad, rad);
+    ctx.arc(rad, rad, rad, angStart, angStart + arc);
+    ctx.lineTo(rad, rad);
+    ctx.fill();
   
-      // Add category text
-      ctx.save();
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate(startAngle + arcSize / 2);
-      ctx.textAlign = "right";
-      ctx.fillStyle = "black";
-      ctx.font = "bold 14px Arial";
-      ctx.fillText(category, canvas.width / 2 - 10, 10);
-      ctx.restore();
-    });
+    // Draw text
+    ctx.save();
+    ctx.translate(rad, rad);
+    ctx.rotate(angStart + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(category.label, rad - 10, 10);
+    ctx.restore();
   }
   
-  // Spin the wheel
-  function spinWheel() {
-    if (spinning) return; // Prevent multiple spins at once
-  
-    spinning = true;
-    spinVelocity = Math.random() * 0.3 + 0.3; // Random initial speed
-    requestAnimationFrame(animateSpin);
+  // Rotate canvas and update the displayed category
+  function rotate() {
+    const category = categories[getIndex()];
+    ctx.canvas.style.transform = `rotate(${ang - Math.PI / 2}rad)`;
+    spinEl.textContent = !angVel ? 'SPIN' : category.label;
+    spinEl.style.background = category.color;
   }
   
-  // Spin animation loop
-  function animateSpin() {
-    if (spinVelocity > 0.01) {
-      angle += spinVelocity; // Update angle
-      spinVelocity *= 0.98; // Slow down over time
-      angle %= 2 * Math.PI; // Keep angle within bounds
-  
-      drawWheel();
-      ctx.save();
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate(angle);
-      ctx.translate(-canvas.width / 2, -canvas.height / 2);
-      ctx.restore();
-  
-      requestAnimationFrame(animateSpin);
-    } else {
-      spinning = false;
-      selectCategory();
+  // Main animation loop for spinning
+  function frame() {
+    if (!angVel) return; // Exit if no velocity
+    angVel *= friction; // Apply friction
+    if (angVel < 0.002) {
+      angVel = 0; // Stop if very slow
+      displayQuestions(); // Show questions when the wheel stops
     }
+    ang += angVel; // Increment angle
+    ang %= TAU; // Wrap angle within 0 to TAU
+    rotate(); // Rotate canvas
   }
   
-  // Determine selected category based on stopping angle
-  function selectCategory() {
-    const selectedCategoryIndex = Math.floor(numCategories - (angle / arcSize) % numCategories) % numCategories;
-    const selectedCategory = categoryNames[selectedCategoryIndex];
-    showQuestions(selectedCategory);
+  // Start the animation
+  function engine() {
+    frame();
+    requestAnimationFrame(engine);
   }
   
-  // Display the questions for the selected category
-  function showQuestions(category) {
-    categoryTitle.textContent = category;
-    questionsContainer.innerHTML = ""; // Clear previous questions
-    categories[category].forEach((question, index) => {
-      const questionElement = document.createElement("div");
-      questionElement.className = "question";
-      questionElement.textContent = `Q${index + 1}: ${question}`;
-      questionElement.onclick = () => {
-        questionElement.style.display = "none"; // Hide question when clicked
-      };
-      questionsContainer.appendChild(questionElement);
+  // Display questions for the selected category
+  function displayQuestions() {
+    const category = categories[getIndex()];
+  
+    // Initialize remaining questions if not already done
+    if (category.remainingQuestions.length === 0) {
+      category.remainingQuestions = [...category.questions];
+    }
+  
+    questionsContainer.innerHTML = `<h3>Questions for ${category.label}</h3>`; // Header for questions
+  
+    // Add each question as a clickable div
+    category.remainingQuestions.forEach((question, index) => {
+      const questionEl = document.createElement("div");
+      questionEl.className = "question";
+      questionEl.textContent = `Q${index + 1}: ${question}`;
+      questionEl.addEventListener("click", () => {
+        questionEl.style.display = "none"; // Hide question on click
+  
+        // Remove the question from remaining questions
+        category.remainingQuestions = category.remainingQuestions.filter(q => q !== question);
+      });
+      questionsContainer.appendChild(questionEl);
     });
-    // Show question view, hide wheel view
-    wheelView.style.display = "none";
-    questionView.style.display = "block";
   }
   
-  // Go back to the wheel view
-  function goBackToWheel() {
-    wheelView.style.display = "block";
-    questionView.style.display = "none";
+  // Initialize the wheel and event listeners
+  function init() {
+    categories.forEach(drawCategory); // Draw initial wheel
+    rotate(); // Initial position
+    engine(); // Start animation loop
+  
+    // Spin the wheel on click
+    spinEl.addEventListener('click', () => {
+      if (!angVel) angVel = rand(0.25, 0.45); // Random initial velocity
+    });
   }
   
-  // Initial setup
-  drawWheel();
-  spinButton.addEventListener("click", spinWheel);
-  backToWheelButton.addEventListener("click", goBackToWheel);
+  init();
   
