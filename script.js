@@ -8,7 +8,8 @@ const categories = [
 const rand = (m, M) => Math.random() * (M - m) + m;
 const tot = categories.length; 
 const spinEl = document.querySelector('#spin');
-const ctx = document.querySelector('#wheel').getContext('2d');
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
 const dia = ctx.canvas.width;
 const rad = dia / 2;
 const TAU = 2 * Math.PI;
@@ -137,6 +138,21 @@ function displayQuestions() {
     questionsContainer.style.display = "block";
 }
 
+// Set the canvas size based on the container size
+function resizeCanvas() {
+    const containerWidth = document.getElementById('wheel-container').offsetWidth;
+    const containerHeight = document.getElementById('wheel-container').offsetHeight;
+
+    canvas.width = containerWidth;
+    canvas.height = containerHeight;
+
+    // Recalculate radius and other dimensions based on new size
+    dia = Math.min(containerWidth, containerHeight);
+    rad = dia / 2;
+
+    drawWheel(); // Redraw the wheel with new dimensions
+}
+
 // Initialize the wheel and event listeners
 function init() {
     categories.forEach(drawCategory); // Draw initial wheel
@@ -149,4 +165,9 @@ function init() {
     });
 }
 
+// Redraw the canvas on resize
+window.addEventListener('resize', resizeCanvas);
+
+// Initial setup
+resizeCanvas();
 init();
