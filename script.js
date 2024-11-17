@@ -1,7 +1,17 @@
-// Define categories with initial questions and a property to track remaining questions
 const categories = [
-    { color: '#f82', label: 'Science', questions: ["What is gravity?", "Explain photosynthesis."], remainingQuestions: [] },
-    { color: '#0bf', label: 'Math', questions: ["What is 2+2?", "Define algebra."], remainingQuestions: [] },
+    { 
+        color: '#f82', 
+        label: 'Science', 
+        questions: ["What is gravity?", "Explain photosynthesis."],
+        remainingQuestions: ["What is gravity?", "Explain photosynthesis."] // Set this once here
+    },
+    { 
+        color: '#0bf', 
+        label: 'Math', 
+        questions: ["What is 2+2?", "Define algebra."],
+        remainingQuestions: ["What is 2+2?", "Define algebra."] // Set this once here
+    },
+    // Add more categories as needed
 ];
 
 // Utility functions and constants
@@ -75,80 +85,98 @@ function engine() {
     requestAnimationFrame(engine);
 }
 
-// Display questions for the selected category
 function displayQuestions() {
     const category = categories[getIndex()];
 
-    // Initialize remaining questions if not already done
-    if (category.remainingQuestions.length === 0) {
-        category.remainingQuestions = [...category.questions];
-    }
-
     questionsContainer.innerHTML = `<h3>Questions for ${category.label}</h3>`; // Header for questions
 
-    // Add each question with a reveal button and a placeholder
-    category.remainingQuestions.forEach((question, index) => {
-        const questionContainer = document.createElement("div");
-        questionContainer.className = "question-container";
+    // Check if there are any remaining questions
+    if (category.remainingQuestions.length === 0) {
+        // If no questions are left, show a "Back to Wheel" button
+        const backButton = document.createElement("button");
+        backButton.textContent = "Back to Wheel";
+        backButton.className = "back-button";
+        backButton.addEventListener("click", () => {
+            wheelContainer.style.display = "block"; // Show the wheel
+            questionsContainer.style.display = "none"; // Hide the questions
+        });
+        questionsContainer.appendChild(backButton);
+    } else {
+        // Add each question with a reveal button and a placeholder
+        category.remainingQuestions.forEach((question, index) => {
+            const questionContainer = document.createElement("div");
+            questionContainer.className = "question-container";
 
-        // Placeholder text initially displayed
-        const placeholderEl = document.createElement("div");
-        placeholderEl.className = "placeholder";
-        placeholderEl.textContent = `Q${index + 1}: Reveal Question`;
-        
-        // Button to reveal the question
-        const revealButton = document.createElement("button");
-        revealButton.textContent = "Reveal";
-        revealButton.className = "reveal-button";
-        
-        // Question element, initially hidden
-        const questionEl = document.createElement("div");
-        questionEl.className = "question";
-        questionEl.textContent = question;
-        questionEl.style.display = "none"; // Initially hidden
+            // Placeholder text initially displayed
+            const placeholderEl = document.createElement("div");
+            placeholderEl.className = "placeholder";
+            placeholderEl.textContent = `Q${index + 1}: Reveal Question`;
+            
+            // Button to reveal the question
+            const revealButton = document.createElement("button");
+            revealButton.textContent = "Reveal";
+            revealButton.className = "reveal-button";
+            
+            // Question element, initially hidden
+            const questionEl = document.createElement("div");
+            questionEl.className = "question";
+            questionEl.textContent = question;
+            questionEl.style.display = "none"; // Initially hidden
 
-        // Append elements to the question container
-        questionContainer.appendChild(placeholderEl);
-        questionContainer.appendChild(revealButton);
-        questionContainer.appendChild(questionEl);
-        questionsContainer.appendChild(questionContainer);
+            // Append elements to the question container
+            questionContainer.appendChild(placeholderEl);
+            questionContainer.appendChild(revealButton);
+            questionContainer.appendChild(questionEl);
+            questionsContainer.appendChild(questionContainer);
 
-        // Event listener for the reveal button to show only the selected question
-        revealButton.addEventListener("click", () => {
-            // Hide all placeholders, buttons, and questions except the current one
-            Array.from(questionsContainer.children).forEach((child) => {
-                const isCurrent = child === questionContainer;
-                const placeholder = child.querySelector(".placeholder");
-                const button = child.querySelector(".reveal-button");
-                const question = child.querySelector(".question");
-        
-                if (placeholder) {
-                    placeholder.classList.toggle("disabled", !isCurrent);
-                }
-                
-                if (button) {
-                    button.disabled = !isCurrent; // Disable the button if it's not the current one
-                    button.classList.toggle("disabled", !isCurrent); // Add a disabled class for styling
-                }
-        
-                if (question) {
-                    question.style.display = isCurrent ? "block" : "none"; // Only show the selected question
+            // Event listener for the reveal button to show only the selected question
+            revealButton.addEventListener("click", () => {
+                // Hide all placeholders, buttons, and questions except the current one
+                Array.from(questionsContainer.children).forEach((child) => {
+                    const isCurrent = child === questionContainer;
+                    const placeholder = child.querySelector(".placeholder");
+                    const button = child.querySelector(".reveal-button");
+                    const question = child.querySelector(".question");
+            
+                    if (placeholder) {
+                        placeholder.classList.toggle("disabled", !isCurrent);
+                    }
+                    
+                    if (button) {
+                        button.disabled = !isCurrent; // Disable the button if it's not the current one
+                        button.classList.toggle("disabled", !isCurrent); // Add a disabled class for styling
+                    }
+            
+                    if (question) {
+                        question.style.display = isCurrent ? "block" : "none"; // Only show the selected question
+                    }
+                });
+            });
+
+            // Event listener for the question to return to the wheel and remove the question from the category's remaining questions
+            questionEl.addEventListener("click", () => {
+                // Remove the clicked question from the category's remaining questions
+                category.remainingQuestions = category.remainingQuestions.filter(q => q !== question);
+
+                questionContainer.remove(); // Permanently remove the question container from the DOM
+
+                // If no questions remain after removing, show the "Back to Wheel" button
+                if (category.remainingQuestions.length === 0) {
+                    const backButton = document.createElement("button");
+                    backButton.textContent = "Back to Wheel";
+                    backButton.className = "back-button";
+                    backButton.addEventListener("click", () => {
+                        wheelContainer.style.display = "block"; // Show the wheel
+                        questionsContainer.style.display = "none"; // Hide the questions
+                    });
+                    questionsContainer.appendChild(backButton);
+                } else {
+                    wheelContainer.style.display = "block"; // Show wheel
+                    questionsContainer.style.display = "none"; // Hide questions container
                 }
             });
         });
-
-        // Event listener for the question to return to the wheel and remove the question from the category's remaining questions
-        questionEl.addEventListener("click", () => {
-            // Remove the clicked question from the category's remaining questions
-            const category = categories[getIndex()];
-            category.remainingQuestions = category.remainingQuestions.filter(q => q !== question);
-
-            questionContainer.remove(); // Permanently remove the question container from the DOM
-            wheelContainer.style.display = "block"; // Show wheel
-            questionsContainer.style.display = "none"; // Hide questions container
-        });
-    });
-
+    }
 
     // Hide the wheel and show the questions
     wheelContainer.style.display = "none";
