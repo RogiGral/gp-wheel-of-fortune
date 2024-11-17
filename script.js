@@ -54,15 +54,15 @@ function rotate() {
 
 // Main animation loop for spinning
 function frame() {
-    if (!angVel) return; // Exit if no velocity
-    angVel *= friction; // Apply friction
+    if (!angVel) return; 
+    angVel *= friction; 
     if (angVel < 0.002) {
-        angVel = 0; // Stop if very slow
-        displayQuestions(); // Show questions when the wheel stops
+        angVel = 0; 
+        displayQuestions(); 
     }
-    ang += angVel; // Increment angle
-    ang %= TAU; // Wrap angle within 0 to TAU
-    rotate(); // Rotate canvas
+    ang += angVel; 
+    ang %= TAU; 
+    rotate(); 
 }
 
 // Start the animation
@@ -72,16 +72,21 @@ function engine() {
 }
 
 // Function to load questions from the JSON file
-async function loadQuestions() {
+async function init() {
     try {
-        const response = await fetch('questions.json'); // Adjust path if needed
+        const response = await fetch('questions.json'); 
+        if (!response.ok) {
+            throw new Error(`Failed to fetch questions: ${response.status}`);
+        }
+
         const data = await response.json();
         
-        // Initialize categories with remainingQuestions
         categories = data.map(category => ({
             ...category,
-            remainingQuestions: [...category.questions] // Initialize remainingQuestions
+            remainingQuestions: [...category.questions]
         }));
+        
+        startApp()
     } catch (error) {
         console.error("Failed to load questions:", error);
     }
@@ -90,8 +95,7 @@ async function loadQuestions() {
 function displayQuestions() {
     const category = categories[getIndex()];
 
-    questionsContainer.innerHTML = `<h3>Pytania z kategorii: ${category.label}</h3>`; // Header for questions
-
+    questionsContainer.innerHTML = `<h3>Pytania z kategorii: ${category.label}</h3>`;
     // Check if there are any remaining questions
     if (category.remainingQuestions.length === 0) {
         // If no questions are left, show a "Back to Wheel" button
@@ -99,8 +103,8 @@ function displayQuestions() {
         backButton.textContent = "Back to Wheel";
         backButton.className = "back-button";
         backButton.addEventListener("click", () => {
-            wheelContainer.style.display = "block"; // Show the wheel
-            questionsContainer.style.display = "none"; // Hide the questions
+            wheelContainer.style.display = "block"; 
+            questionsContainer.style.display = "none"; 
         });
         questionsContainer.appendChild(backButton);
     } else {
@@ -123,7 +127,7 @@ function displayQuestions() {
             const questionEl = document.createElement("div");
             questionEl.className = "question";
             questionEl.textContent = question;
-            questionEl.style.display = "none"; // Initially hidden
+            questionEl.style.display = "none"; 
 
             // Append elements to the question container
             questionContainer.appendChild(placeholderEl);
@@ -145,12 +149,12 @@ function displayQuestions() {
                     }
                     
                     if (button) {
-                        button.disabled = !isCurrent; // Disable the button if it's not the current one
-                        button.classList.toggle("disabled", !isCurrent); // Add a disabled class for styling
+                        button.disabled = !isCurrent; 
+                        button.classList.toggle("disabled", !isCurrent); 
                     }
             
                     if (question) {
-                        question.style.display = isCurrent ? "block" : "none"; // Only show the selected question
+                        question.style.display = isCurrent ? "block" : "none"; 
                     }
                 });
             });
@@ -160,7 +164,7 @@ function displayQuestions() {
                 // Remove the clicked question from the category's remaining questions
                 category.remainingQuestions = category.remainingQuestions.filter(q => q !== question);
 
-                questionContainer.remove(); // Permanently remove the question container from the DOM
+                questionContainer.remove();
 
                 // If no questions remain after removing, show the "Back to Wheel" button
                 if (category.remainingQuestions.length === 0) {
@@ -168,13 +172,13 @@ function displayQuestions() {
                     backButton.textContent = "Powrót do koła fortuny";
                     backButton.className = "back-button";
                     backButton.addEventListener("click", () => {
-                        wheelContainer.style.display = "block"; // Show the wheel
-                        questionsContainer.style.display = "none"; // Hide the questions
+                        wheelContainer.style.display = "block"; 
+                        questionsContainer.style.display = "none";
                     });
                     questionsContainer.appendChild(backButton);
                 } else {
-                    wheelContainer.style.display = "block"; // Show wheel
-                    questionsContainer.style.display = "none"; // Hide questions container
+                    wheelContainer.style.display = "block"; 
+                    questionsContainer.style.display = "none";
                 }
             });
         });
@@ -186,8 +190,7 @@ function displayQuestions() {
 }
 
 // Initialize the wheel and event listeners
-function init() {
-    loadQuestions()
+function startApp() {
     categories.forEach(drawCategory); // Draw initial wheel
     rotate(); // Initial position
     engine(); // Start animation loop
