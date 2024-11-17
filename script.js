@@ -85,10 +85,11 @@ function displayQuestions() {
 
     questionsContainer.innerHTML = `<h3>Questions for ${category.label}</h3>`; // Header for questions
 
+    // Add each question with a reveal button and a placeholder
     category.remainingQuestions.forEach((question, index) => {
         const questionContainer = document.createElement("div");
         questionContainer.className = "question-container";
-    
+
         // Placeholder text initially displayed
         const placeholderEl = document.createElement("div");
         placeholderEl.className = "placeholder";
@@ -104,26 +105,32 @@ function displayQuestions() {
         questionEl.className = "question";
         questionEl.textContent = question;
         questionEl.style.display = "none"; // Initially hidden
-    
+
         // Append elements to the question container
         questionContainer.appendChild(placeholderEl);
         questionContainer.appendChild(revealButton);
         questionContainer.appendChild(questionEl);
         questionsContainer.appendChild(questionContainer);
-    
-        // Event listener for the reveal button to show the question
+
+        // Event listener for the reveal button to show only the selected question
         revealButton.addEventListener("click", () => {
-            placeholderEl.style.display = "none"; // Hide placeholder
-            revealButton.style.display = "none"; // Hide button
-            questionEl.style.display = "block"; // Show question
+            // Hide all placeholders, buttons, and questions except the current one
+            Array.from(questionsContainer.children).forEach((child) => {
+                const isCurrent = child === questionContainer;
+                child.querySelector(".placeholder").style.display = isCurrent ? "none" : "none"; // Hide all placeholders
+                child.querySelector(".reveal-button").style.display = isCurrent ? "none" : "none"; // Hide all buttons
+                child.querySelector(".question").style.display = isCurrent ? "block" : "none"; // Show only the current question
+            });
         });
-    
-        // Event listener for the question to return to the wheel
+
+        // Event listener for the question to return to the wheel and remove the question from view
         questionEl.addEventListener("click", () => {
+            questionContainer.style.display = "none"; // Hide the question container after clicking the question
             wheelContainer.style.display = "block"; // Show wheel
-            questionsContainer.style.display = "none"; // Hide questions
+            questionsContainer.style.display = "none"; // Hide questions container
         });
     });
+
 
     // Hide the wheel and show the questions
     wheelContainer.style.display = "none";
