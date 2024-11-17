@@ -1,18 +1,4 @@
-const categories = [
-    { 
-        color: '#f82', 
-        label: 'Science', 
-        questions: ["What is gravity?", "Explain photosynthesis."],
-        remainingQuestions: ["What is gravity?", "Explain photosynthesis."] // Set this once here
-    },
-    { 
-        color: '#0bf', 
-        label: 'Math', 
-        questions: ["What is 2+2?", "Define algebra."],
-        remainingQuestions: ["What is 2+2?", "Define algebra."] // Set this once here
-    },
-    // Add more categories as needed
-];
+const categories = [];
 
 // Utility functions and constants
 const rand = (m, M) => Math.random() * (M - m) + m;
@@ -85,6 +71,22 @@ function engine() {
     requestAnimationFrame(engine);
 }
 
+// Function to load questions from the JSON file
+async function loadQuestions() {
+    try {
+        const response = await fetch('questions.json'); // Adjust path if needed
+        const data = await response.json();
+        
+        // Initialize categories with remainingQuestions
+        categories = data.map(category => ({
+            ...category,
+            remainingQuestions: [...category.questions] // Initialize remainingQuestions
+        }));
+    } catch (error) {
+        console.error("Failed to load questions:", error);
+    }
+}
+// Function to display questions for the selected category
 function displayQuestions() {
     const category = categories[getIndex()];
 
@@ -185,6 +187,7 @@ function displayQuestions() {
 
 // Initialize the wheel and event listeners
 function init() {
+    loadQuestions()
     categories.forEach(drawCategory); // Draw initial wheel
     rotate(); // Initial position
     engine(); // Start animation loop
@@ -195,4 +198,4 @@ function init() {
     });
 }
 
-init();
+init()
