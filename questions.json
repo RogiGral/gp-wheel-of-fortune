@@ -1,0 +1,12 @@
+[
+    {
+        "label": "Science",
+        "color": "#f82",
+        "questions": ["What is gravity?", "Explain photosynthesis."]
+    },
+    {
+        "label": "Math",
+        "color": "#0bf",
+        "questions": ["What is 2+2?", "Define algebra."]
+    }
+]
